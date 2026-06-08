@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Мои поездки{% endblock %}
+
+{% block content %}
+<h2>Мои поездки</h2>
+
+{% if trips %}
+    <div class="trips-list">
+        {% for trip in trips %}
+        <div class="trip-card">
+            <h3>{{ trip.from_location }} → {{ trip.to_location }}</h3>
+            <p>📅 {{ trip.departure_date.strftime('%d.%m.%Y') }} 
+               {% if trip.departure_time %}⏰ {{ trip.departure_time.strftime('%H:%M') }}{% endif %}
+            </p>
+            <p>🪑 Мест: {{ trip.available_seats }} | 💰 {{ trip.price }} ₽</p>
+            <span class="badge badge-{{ trip.status }}">{{ trip.status }}</span>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>У вас пока нет созданных поездок.</p>
+    <a href="{{ url_for('trips.create') }}" class="btn">Создать первую поездку</a>
+{% endif %}
+{% endblock %}

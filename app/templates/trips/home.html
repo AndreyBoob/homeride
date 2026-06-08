@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<div class="home-page">
+    <h2>Сервис для поиска попутчиков</h2>
+    
+    <div class="features">
+        <div class="feature">
+            <h3>Найти поездку</h3>
+            <p>Найдите подходящую поездку по направлению и дате</p>
+            <a href="{{ url_for('trips.search') }}" class="btn">Найти</a>
+        </div>
+        <div class="feature">
+            <h3>Создать поездку</h3>
+            <p>Предложите свою поездку и найдите попутчиков</p>
+            <a href="{{ url_for('trips.create') }}" class="btn">Создать</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Подтверждение email{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h2>Подтверждение email</h2>
+    
+    <div class="alert alert-info">
+        <p>На email <strong>{{ email }}</strong> отправлен код подтверждения.</p>
+    </div>
+    
+    {% if demo_code %}
+    <div class="alert alert-warning">
+        <p><strong>Код для подтверждения:</strong> <code style="font-size: 1.5rem; background: #fff3cd; padding: 0.5rem;">{{ demo_code }}</code></p>
+        <p class="text-muted mb-0"><small>(Для демонстрации используйте этот код)</small></p>
+    </div>
+    {% endif %}
+    
+    <form method="POST" action="{{ url_for('auth.verify_email') }}">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.code.label }}
+            {{ form.code(class="form-control", placeholder="123456", maxlength=6) }}
+            {% for error in form.code.errors %}
+                <span class="error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.submit(class="btn btn-success") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

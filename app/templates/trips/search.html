@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск поездок{% endblock %}
+
+{% block content %}
+<h2>Поиск поездок</h2>
+
+<!-- Форма поиска -->
+<div class="search-form">
+    <form method="GET" action="{{ url_for('trips.search') }}">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Откуда</label>
+                <input type="text" name="from" class="form-control" 
+                       placeholder="Москва" value="{{ request.args.get('from', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Куда</label>
+                <input type="text" name="to" class="form-control" 
+                       placeholder="Санкт-Петербург" value="{{ request.args.get('to', '') }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Дата</label>
+                <input type="date" name="date" class="form-control" 
+                       value="{{ request.args.get('date', '') }}">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn">Найти поездки</button>
+            <a href="{{ url_for('trips.search') }}" class="btn">Сбросить</a>
+        </div>
+    </form>
+</div>
+
+<!-- Результаты поиска -->
+{% if has_searched %}
+    {% if trips %}
+    <h3>Найдено поездок: {{ trips|length }}</h3>
+    <div class="trips-list">
+        {% for trip in trips %}
+        <div class="trip-card">
+            <div class="trip-header">
+                <h4>{{ trip.from_location }} → {{ trip.to_location }}</h4>
+                <span class="price">{{ trip.price }} ₽</span>
+            </div>
+            <div class="trip-details">
+                <span>📅 {{ trip.departure_date.strftime('%d.%m.%Y') }}</span>
+                {% if trip.departure_time %}
+                <span>⏰ {{ trip.departure_time.strftime('%H:%M') }}</span>
+                {% endif %}
+                <span>🪑 {{ trip.available_seats }} мест</span>
+            </div>
+            <p class="trip-driver">Водитель: {{ trip.driver.first_name }} {{ trip.driver.last_name }}</p>
+            {% if trip.description %}
+            <p class="trip-description">{{ trip.description }}</p>
+            {% endif %}
+            <a href="{{ url_for('trips.detail', trip_id=trip.id) }}" class="btn">Подробнее</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-results">
+        <h3>Поездки не найдены</h3>
+        <p>Попробуйте изменить параметры поиска или создайте свою поездку</p>
+        <a href="{{ url_for('trips.create') }}" class="btn">Создать поездку</a>
+    </div>
+    {% endif %}
+{% else %}
+<div class="welcome-search">
+    <p>Введите параметры поиска выше, чтобы найти подходящие поездки</p>
+</div>
+{% endif %}
+{% endblock %}
