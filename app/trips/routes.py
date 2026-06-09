@@ -10,32 +10,45 @@ from datetime import datetime
 def home():
     return render_template('trips/home.html')
 
-@bp.route('/search')
+@bp.route('/search', methods=['GET', 'POST'])
 def search():
-    # Получаем параметры поиска
-    from_loc = request.args.get('from', '')
-    to_loc = request.args.get('to', '')
-    date = request.args.get('date', '')
+    form = SearchTripForm()
+    query = Trip.query.filter_by(status='active')
     
-    # Проверяем, был ли поиск
-    has_searched = bool(from_loc or to_loc or date)
+    city = session.get('search_city')
+    street = session.get('search_street')
     
-    trips = []
-    
-    if has_searched:
-        query = Trip.query.filter_by(status='active')
+    if request.method == 'POST':
+        city = request.form.get('city')
+        street = request.form.get('street')
         
-        if from_loc:
-            query = query.filter(Trip.from_location.ilike(f'%{from_loc}%'))
-        if to_loc:
-            query = query.filter(Trip.to_location.ilike(f'%{to_loc}%'))
-        if date:
-            date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-            query = query.filter(Trip.departure_date == date_obj)
+        session['search_city'] = city
+        session['search_street'] = street
         
-        trips = query.order_by(Trip.departure_date.asc(), Trip.departure_time.asc()).all()
+        if city:
+            query = query.filter(
+                db.or_(
+                    Trip.from_city.ilike(f'%{city}%'),
+                    Trip.to_city.ilike(f'%{city}%')
+                )
+            )
+        
+        if street:
+            query = query.filter(
+                db.or_(
+                    Trip.from_street.ilike(f'%{street}%'),
+                    Trip.to_street.ilike(f'%{street}%')
+                )
+            )
     
-    return render_template('trips/search.html', trips=trips, has_searched=has_searched)
+    trips = query.order_by(Trip.departure_date, Trip.departure_time).all()
+    return render_template('trips/search.html', form=form, trips=trips, city=city, street=street)
+
+@bp.route('/search/clear')
+def clear_search():
+    session.pop('search_city', None)
+    session.pop('search_street', None)
+    return redirect(url_for('trips.search'))
 
 @bp.route('/create', methods=['GET', 'POST'])
 @login_required

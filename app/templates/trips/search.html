@@ -1,76 +1,102 @@
 {% extends "base.html" %}
 
-{% block title %}Поиск поездок{% endblock %}
-
 {% block content %}
-<h2>Поиск поездок</h2>
-
-<!-- Форма поиска -->
-<div class="search-form">
-    <form method="GET" action="{{ url_for('trips.search') }}">
-        <div class="form-row">
-            <div class="form-group">
-                <label>Откуда</label>
-                <input type="text" name="from" class="form-control" 
-                       placeholder="Москва" value="{{ request.args.get('from', '') }}">
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Найти поездку</h1>
+    
+    <!-- Форма поиска -->
+    <form method="POST" class="bg-white p-6 rounded-lg shadow-md mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Город</label>
+                <input type="text" name="city" value="{{ city or '' }}" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                       placeholder="Москва">
             </div>
-            
-            <div class="form-group">
-                <label>Куда</label>
-                <input type="text" name="to" class="form-control" 
-                       placeholder="Санкт-Петербург" value="{{ request.args.get('to', '') }}">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Улица (опционально)</label>
+                <input type="text" name="street" value="{{ street or '' }}" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg" 
+                       placeholder="ул. Примерная">
             </div>
-            
-            <div class="form-group">
-                <label>Дата</label>
-                <input type="date" name="date" class="form-control" 
-                       value="{{ request.args.get('date', '') }}">
+            <div class="flex items-end">
+                <button type="submit" class="w-full px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    🔍 Найти
+                </button>
             </div>
-        </div>
-        
-        <div class="form-group">
-            <button type="submit" class="btn">Найти поездки</button>
-            <a href="{{ url_for('trips.search') }}" class="btn">Сбросить</a>
         </div>
     </form>
-</div>
-
-<!-- Результаты поиска -->
-{% if has_searched %}
-    {% if trips %}
-    <h3>Найдено поездок: {{ trips|length }}</h3>
-    <div class="trips-list">
+    
+    <!-- Результаты поиска -->
+    {% if city or street %}
+    <div class="mb-4 flex justify-between items-center">
+        <p class="text-gray-600">
+            Найдено поездок: <span class="font-semibold">{{ trips|length }}</span>
+            {% if city %}в городе "{{ city }}"{% endif %}
+            {% if street %}по улице "{{ street }}"{% endif %}
+        </p>
+        <a href="{{ url_for('trips.clear_search') }}" class="text-blue-500 hover:underline">
+            Сбросить фильтры
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Список поездок -->
+    <div class="space-y-4">
         {% for trip in trips %}
-        <div class="trip-card">
-            <div class="trip-header">
-                <h4>{{ trip.from_location }} → {{ trip.to_location }}</h4>
-                <span class="price">{{ trip.price }} ₽</span>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-semibold">
+                        {{ trip.from_city }} → {{ trip.to_city }}
+                    </h3>
+                    {% if trip.from_street or trip.to_street %}
+                    <p class="text-gray-600 text-sm mt-1">
+                        {% if trip.from_street %}{{ trip.from_street }}{% if trip.from_house %}, {{ trip.from_house }}{% endif %}{% if trip.from_entrance %}, подъезд {{ trip.from_entrance }}{% endif %}{% endif %}
+                        →
+                        {% if trip.to_street %}{{ trip.to_street }}{% if trip.to_house %}, {{ trip.to_house }}{% endif %}{% if trip.to_entrance %}, подъезд {{ trip.to_entrance }}{% endif %}{% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="text-right">
+                    <p class="text-2xl font-bold text-green-600">{{ trip.price }} ₽</p>
+                    <p class="text-gray-600 text-sm">{{ trip.available_seats }} мест</p>
+                </div>
             </div>
-            <div class="trip-details">
-                <span>📅 {{ trip.departure_date.strftime('%d.%m.%Y') }}</span>
-                {% if trip.departure_time %}
-                <span>⏰ {{ trip.departure_time.strftime('%H:%M') }}</span>
+            
+            <div class="border-t pt-4">
+                <p class="text-gray-700">
+                    📅 {{ trip.departure_date.strftime('%d.%m.%Y') }} 
+                    ⏰ {{ trip.departure_time.strftime('%H:%M') if trip.departure_time else 'не указано' }}
+                </p>
+                {% if trip.description %}
+                <p class="text-gray-600 mt-2">{{ trip.description }}</p>
                 {% endif %}
-                <span>🪑 {{ trip.available_seats }} мест</span>
             </div>
-            <p class="trip-driver">Водитель: {{ trip.driver.first_name }} {{ trip.driver.last_name }}</p>
-            {% if trip.description %}
-            <p class="trip-description">{{ trip.description }}</p>
+            
+            <div class="mt-4 flex gap-2">
+                <a href="{{ url_for('trips.detail', trip_id=trip.id) }}" 
+                   class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    Подробнее
+                </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('bookings.create', trip_id=trip.id) }}" 
+                   class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    Забронировать
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center py-12 text-gray-500">
+            {% if city or street %}
+            <p class="text-xl">😕 Поездки не найдены</p>
+            <p class="mt-2">Попробуйте изменить параметры поиска</p>
+            {% else %}
+            <p class="text-xl">🚗 Введите город для поиска поездок</p>
             {% endif %}
-            <a href="{{ url_for('trips.detail', trip_id=trip.id) }}" class="btn">Подробнее</a>
         </div>
         {% endfor %}
     </div>
-    {% else %}
-    <div class="no-results">
-        <h3>Поездки не найдены</h3>
-        <p>Попробуйте изменить параметры поиска или создайте свою поездку</p>
-        <a href="{{ url_for('trips.create') }}" class="btn">Создать поездку</a>
-    </div>
-    {% endif %}
-{% else %}
-<div class="welcome-search">
-    <p>Введите параметры поиска выше, чтобы найти подходящие поездки</p>
 </div>
-{% endif %}
 {% endblock %}

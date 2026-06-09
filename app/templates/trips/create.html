@@ -1,79 +1,92 @@
 {% extends "base.html" %}
 
-{% block title %}Создать поездку{% endblock %}
-
 {% block content %}
-<div class="form-container">
-    <h2>Создать поездку</h2>
+<div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-8">Создать поездку</h1>
     
-    <form method="POST" action="{{ url_for('trips.create') }}">
+    <form method="POST" class="space-y-6">
         {{ form.hidden_tag() }}
         
-        <div class="form-row">
-            <div class="form-group">
-                {{ form.from_location.label }}
-                {{ form.from_location(class="form-control", placeholder="Москва") }}
-                {% for error in form.from_location.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
-            </div>
-            
-            <div class="form-group">
-                {{ form.to_location.label }}
-                {{ form.to_location(class="form-control", placeholder="Санкт-Петербург") }}
-                {% for error in form.to_location.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
-            </div>
-        </div>
-        
-        <div class="form-row">
-            <div class="form-group">
-                {{ form.departure_date.label }}
-                {{ form.departure_date(class="form-control", type="date") }}
-                {% for error in form.departure_date.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
-            </div>
-            
-            <div class="form-group">
-                {{ form.departure_time.label }}
-                {{ form.departure_time(class="form-control", type="time") }}
-                {% for error in form.departure_time.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
+        <!-- Откуда -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4 text-blue-600">📍 Откуда</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    {{ form.from_city.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.from_city(class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500", placeholder="Москва") }}
+                </div>
+                <div>
+                    {{ form.from_street.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.from_street(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="ул. Примерная") }}
+                </div>
+                <div>
+                    {{ form.from_house.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.from_house(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="д. 1") }}
+                </div>
+                <div>
+                    {{ form.from_entrance.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.from_entrance(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="подъезд 1") }}
+                </div>
             </div>
         </div>
         
-        <div class="form-row">
-            <div class="form-group">
-                {{ form.available_seats.label }}
-                {{ form.available_seats(class="form-control", min=1, max=10) }}
-                {% for error in form.available_seats.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
-            </div>
-            
-            <div class="form-group">
-                {{ form.price.label }}
-                {{ form.price(class="form-control", min=0, step="0.01") }}
-                {% for error in form.price.errors %}
-                    <span class="error">{{ error }}</span>
-                {% endfor %}
+        <!-- Куда -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-xl font-semibold mb-4 text-green-600">🏁 Куда</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    {{ form.to_city.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.to_city(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="Санкт-Петербург") }}
+                </div>
+                <div>
+                    {{ form.to_street.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.to_street(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="ул. Примерная") }}
+                </div>
+                <div>
+                    {{ form.to_house.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.to_house(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="д. 1") }}
+                </div>
+                <div>
+                    {{ form.to_entrance.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.to_entrance(class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="подъезд 1") }}
+                </div>
             </div>
         </div>
         
-        <div class="form-group">
-            {{ form.description.label }}
-            {{ form.description(class="form-control", rows=3) }}
-            {% for error in form.description.errors %}
-                <span class="error">{{ error }}</span>
-            {% endfor %}
+        <!-- Дата и время -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                {{ form.departure_date.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                {{ form.departure_date(class="w-full px-4 py-2 border border-gray-300 rounded-lg") }}
+            </div>
+            <div>
+                {{ form.departure_time.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                {{ form.departure_time(class="w-full px-4 py-2 border border-gray-300 rounded-lg") }}
+            </div>
         </div>
         
-        <div class="form-group">
-            {{ form.submit(class="btn btn-success") }}
-            <a href="{{ url_for('trips.search') }}" class="btn">Отмена</a>
+        <!-- Места и цена -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                {{ form.available_seats.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                {{ form.available_seats(class="w-full px-4 py-2 border border-gray-300 rounded-lg", min=1) }}
+            </div>
+            <div>
+                {{ form.price.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                {{ form.price(class="w-full px-4 py-2 border border-gray-300 rounded-lg", min=0, step="0.01") }}
+            </div>
+        </div>
+        
+        <!-- Описание -->
+        <div>
+            {{ form.description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+            {{ form.description(rows=4, class="w-full px-4 py-2 border border-gray-300 rounded-lg", placeholder="Дополнительная информация о поездке...") }}
+        </div>
+        
+        <!-- Кнопки -->
+        <div class="flex gap-4">
+            {{ form.submit(class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition") }}
+            <a href="{{ url_for('trips.index') }}" class="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">Отмена</a>
         </div>
     </form>
 </div>

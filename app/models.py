@@ -32,21 +32,30 @@ class User(UserMixin, db.Model):
 class Trip(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     driver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    from_location = db.Column(db.String(255), nullable=False)
-    to_location = db.Column(db.String(255), nullable=False)
+    
+    # Откуда
+    from_city = db.Column(db.String(100), nullable=False)
+    from_street = db.Column(db.String(200))
+    from_house = db.Column(db.String(20))
+    from_entrance = db.Column(db.String(10))
+    
+    # Куда
+    to_city = db.Column(db.String(100), nullable=False)
+    to_street = db.Column(db.String(200))
+    to_house = db.Column(db.String(20))
+    to_entrance = db.Column(db.String(10))
+    
+    # Остальные поля
     departure_date = db.Column(db.Date, nullable=False)
     departure_time = db.Column(db.Time)
-    available_seats = db.Column(db.Integer, default=4)
+    available_seats = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
     description = db.Column(db.Text)
-    status = db.Column(db.String(20), default='active')  # active, completed, cancelled
+    status = db.Column(db.String(20), default='active')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Связи
-    driver = db.relationship('User', backref=db.backref('trips', lazy=True))
-    
-    def __repr__(self):
-        return f'<Trip {self.from_location} -> {self.to_location}>'
+    driver = db.relationship('User', backref='trips', lazy=True)
+    bookings = db.relationship('Booking', backref='trip', lazy=True)
     
 class Booking(db.Model):
     id = db.Column(db.Integer, primary_key=True)
